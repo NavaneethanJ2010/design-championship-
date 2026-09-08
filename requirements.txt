@@ -1,0 +1,11 @@
+customtkinter==5.2.2
+Pillow==10.3.0
+opencv-python==4.9.0.80
+# 0.10.30 has a Windows Tasks API regression: "function 'free' not found".
+# 0.10.35 contains the native-library fix and supports the HandLandmarker API.
+mediapipe==0.10.35
+pyttsx3==2.90
+SpeechRecognition==3.10.4
+PyAudio==0.2.14
+pandas==2.2.2
+pyinstaller==6.6.0
