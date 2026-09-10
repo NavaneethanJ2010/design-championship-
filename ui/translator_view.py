@@ -160,6 +160,13 @@ class TranslatorView(ctk.CTkFrame):
         self.voice_result.insert("end", "Recognised speech will appear here…")
         self.voice_result.configure(state="disabled")
 
+        self.voice_sign_result = ctk.CTkLabel(
+            vc, text="Say a supported word, e.g. 'Hello' or 'Thank You'.",
+            font=ctk.CTkFont(size=12), text_color=ACCENT2,
+            wraplength=330, justify="left",
+        )
+        self.voice_sign_result.grid(row=3, column=0, padx=14, pady=(0, 12), sticky="ew")
+
         # Sign lookup card
         lc = ctk.CTkFrame(right, fg_color=CARD, corner_radius=16)
         lc.grid(row=2, column=0, sticky="ew")
@@ -236,6 +243,35 @@ class TranslatorView(ctk.CTkFrame):
         self.mic_btn.configure(
             text="🎤  Start Listening",
             fg_color=SUCCESS, hover_color="#388e3c")
+        self._show_voice_sign(text)
+
+    def _show_voice_sign(self, text: str):
+        """Turn recognised speech into a local sign reference instruction."""
+        from core.gesture_model import load_dictionary
+
+        if text.startswith("["):
+            self.voice_sign_result.configure(text="Voice input needs attention; see the message above.")
+            return
+
+        dictionary = load_dictionary()
+        spoken = text.casefold()
+        match = next(
+            (sign for sign in sorted(dictionary, key=len, reverse=True)
+             if sign.casefold() in spoken),
+            None,
+        )
+        if match:
+            self.lookup_entry.delete(0, "end")
+            self.lookup_entry.insert(0, match)
+            self.lookup_result.configure(text=f"👐 {dictionary[match]}")
+            self.voice_sign_result.configure(
+                text=f"Sign instruction: {match} — {dictionary[match]}"
+            )
+        else:
+            supported = ", ".join(dictionary)
+            self.voice_sign_result.configure(
+                text=f"No sign reference found for that phrase. Try: {supported}."
+            )
 
     def _lookup_sign(self):
         from core.gesture_model import load_dictionary

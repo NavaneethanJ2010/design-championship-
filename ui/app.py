@@ -103,12 +103,11 @@ class App(ctk.CTk):
 
         self.camera_status = self._status_row(status_card, "Camera")
         self.model_status = self._status_row(status_card, "AI Model")
-        self.speech_status = self._status_row(status_card, "Speech")
+        self.speech_status = self._status_row(status_card, "Voice Input")
 
-        ctk.CTkFrame(status_card, height=1, fg_color="#2a2d3a").pack(fill="x", padx=8, pady=6)
-        ctk.CTkLabel(status_card, text="Frontend ✅ Ready",
-                     font=ctk.CTkFont(size=11, weight="bold"),
-                     text_color=ACCENT2).pack(pady=(0, 10))
+        ctk.CTkFrame(status_card, height=1, fg_color="#2a2d3a").pack(
+            fill="x", padx=8, pady=(6, 10)
+        )
 
     def _status_row(self, parent, label):
         row = ctk.CTkFrame(parent, fg_color="transparent")
@@ -146,7 +145,7 @@ class App(ctk.CTk):
         statuses = (
             (self.camera_status, self.tracker.camera_available),
             (self.model_status, self.tracker.model_available),
-            (self.speech_status, self.speech.available),
+            (self.speech_status, self.speech.input_available),
         )
         for label, available in statuses:
             label.configure(
