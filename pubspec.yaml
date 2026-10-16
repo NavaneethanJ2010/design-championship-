@@ -1,0 +1,73 @@
+name: workshop_notes
+description: >
+  Offline workshop note-taking and transcription app for Windows 11 and Android.
+  Connects to a local LM Studio OpenAI-compatible API for transcription.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ---------------------------------------------------------------------------
+  # Local SQLite database with Drift ORM — Windows + Android
+  # ---------------------------------------------------------------------------
+  drift: ^2.35.2
+  sqlite3: ^3.7.1
+  path: ^1.9.0
+
+  # ---------------------------------------------------------------------------
+  # Audio recording — Windows (MediaFoundation) + Android (MediaRecorder)
+  # ---------------------------------------------------------------------------
+  record: ^7.1.2
+
+  # ---------------------------------------------------------------------------
+  # Audio playback — Windows + Android
+  # ---------------------------------------------------------------------------
+  audioplayers: ^6.8.1
+
+  # ---------------------------------------------------------------------------
+  # Local filesystem operations & persistent storage paths
+  # ---------------------------------------------------------------------------
+  path_provider: ^2.1.6
+
+  # ---------------------------------------------------------------------------
+  # HTTP requests to local LM Studio OpenAI-compatible API
+  # ---------------------------------------------------------------------------
+  http: ^1.6.0
+
+  # ---------------------------------------------------------------------------
+  # File selection / importing prerecorded audio
+  # ---------------------------------------------------------------------------
+  file_picker: ^13.1.0
+
+  # ---------------------------------------------------------------------------
+  # UUID generation for unique note and recording IDs
+  # ---------------------------------------------------------------------------
+  uuid: ^4.6.0
+
+  # ---------------------------------------------------------------------------
+  # Date and time formatting
+  # ---------------------------------------------------------------------------
+  intl: ^0.20.3
+
+  # ---------------------------------------------------------------------------
+  # Android-only: runtime permission handling (microphone, storage)
+  # ---------------------------------------------------------------------------
+  permission_handler: ^13.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  drift_dev: ^2.35.1
+  build_runner: ^2.17.1
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
