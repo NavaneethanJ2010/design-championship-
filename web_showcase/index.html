@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkshopFlow — Offline AI Note-Taking & Transcribe</title>
+  
+  <!-- Fonts: Serif Editorial + Clean Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #090B0A;
+      --surface: #111413;
+      --surface-card: #161A18;
+      --surface-elevated: #1E2320;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(30, 215, 96, 0.25);
+      
+      --text-main: #F4F7F5;
+      --text-muted: #8F9994;
+      --text-dim: #5A6360;
+      
+      --accent-green: #2EE59D;
+      --accent-glow: rgba(46, 229, 157, 0.15);
+      --accent-warm: #E2B77A;
+      --accent-blue: #58A6FF;
+      
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle background grid & radial glow like Wispr Flow */
+    .bg-ambience {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(circle at 50% 15%, rgba(46, 229, 157, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 85% 70%, rgba(88, 166, 255, 0.04) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(9, 11, 10, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #111413;
+      border: 2px solid var(--accent-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .logo-badge::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-elevated);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: var(--text-main);
+      color: var(--bg);
+      border: 1px solid transparent;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(255, 255, 255, 0.25);
+      background: #FFFFFF;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 100px 0 60px;
+      text-align: center;
+    }
+
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(48px, 7vw, 84px);
+      line-height: 1.05;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      color: var(--text-main);
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent-warm);
+    }
+
+    .hero-sub {
+      max-width: 680px;
+      margin: 0 auto 36px;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 50px;
+    }
+
+    .hero-specs {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .hero-specs span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Interactive Product Simulator / Hero Showcase */
+    .showcase-wrapper {
+      margin-top: 40px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+      padding: 1px;
+      box-shadow: 0 24px 80px -20px rgba(0, 0, 0, 0.9);
+    }
+
+    .showcase-window {
+      background: var(--surface);
+      border-radius: 23px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .window-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .window-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .window-title {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .window-body {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      min-height: 480px;
+    }
+
+    @media (max-width: 880px) {
+      .window-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left pane of app mock */
+    .mock-left {
+      padding: 28px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .mock-recording-bar {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rec-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #FF4757;
+      border-radius: 50%;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+    }
+
+    .rec-time {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .mock-summary-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .mock-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-ai {
+      background: rgba(46, 229, 157, 0.1);
+      color: var(--accent-green);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(46, 229, 157, 0.2);
+    }
+
+    .takeaways-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    .takeaways-list li {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .takeaways-list li::before {
+      content: '✦';
+      color: var(--accent-warm);
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    /* Right pane of app mock (Live Transcript stream) */
+    .mock-right {
+      padding: 28px;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .stream-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-family: var(--font-mono);
+    }
+
+    .transcript-segment {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .transcript-time {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-green);
+      background: rgba(46, 229, 157, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 8px;
+      margin-bottom: 4px;
+    }
+
+    .transcript-segment.active {
+      border-color: rgba(46, 229, 157, 0.4);
+      background: var(--surface-elevated);
+    }
+
+    /* Editorial Section: Offline First Philosophy */
+    .philosophy {
+      padding: 120px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .editorial-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    @media (max-width: 880px) {
+      .editorial-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .editorial-quote {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 4vw, 44px);
+      line-height: 1.2;
+      color: var(--text-main);
+    }
+
+    .editorial-quote span {
+      color: var(--text-muted);
+    }
+
+    .editorial-body {
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* Features Grid (Wispr flow style cards) */
+    .features {
+      padding: 100px 0;
+    }
+
+    .section-head {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 60px;
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+
+    .card-title {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+
+    /* Architecture / LM Studio Section */
+    .architecture {
+      padding: 80px 0 120px;
+    }
+
+    .arch-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    @media (max-width: 880px) {
+      .arch-box {
+        grid-template-columns: 1fr;
+        padding: 30px;
+      }
+    }
+
+    .terminal-mock {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: #A0B3A6;
+      line-height: 1.6;
+    }
+
+    .terminal-mock .prompt {
+      color: var(--accent-green);
+    }
+
+    /* Download Banner / CTA */
+    .cta-banner {
+      background: radial-gradient(circle at 50% 50%, rgba(46, 229, 157, 0.12) 0%, rgba(17, 20, 19, 0.8) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: 28px;
+      padding: 70px 40px;
+      text-align: center;
+      margin-bottom: 100px;
+    }
+
+    .cta-title {
+      font-family: var(--font-serif);
+      font-size: 44px;
+      margin-bottom: 16px;
+    }
+
+    .cta-subtitle {
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 32px;
+      font-size: 16px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .footer-inner {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-ambience"></div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-badge"></div>
+        WorkshopFlow
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#offline">Zero Cloud</a></li>
+        <li><a href="#downloads">Downloads</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#downloads" class="btn btn-primary">Get the App</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="pill-tag">
+        <div class="pill-dot"></div>
+        Offline Local AI Workshop Scribe
+      </div>
+      <h1 class="hero-title">
+        Capture workshops.<br>
+        <em>Synthesize</em> with local intelligence.
+      </h1>
+      <p class="hero-sub">
+        Record audio, generate timestamped transcripts, and distill 5 key takeaways using a locally hosted Qwen LLM on your laptop. Complete privacy, zero cloud lock-in.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="#downloads" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download for Windows 11
+        </a>
+        <a href="#downloads" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          Get Android APK
+        </a>
+      </div>
+
+      <div class="hero-specs">
+        <span>✦ SQLite & Drift DB</span>
+        <span>✦ 100% Offline Capable</span>
+        <span>✦ LM Studio OpenAI REST</span>
+        <span>✦ Material Design 3</span>
+      </div>
+
+      <!-- App Showcase Mockup -->
+      <div class="showcase-wrapper">
+        <div class="showcase-window">
+          <div class="window-header">
+            <div class="window-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="window-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              WorkshopFlow Desktop — Offline Session #042
+            </div>
+            <div class="badge-ai">LM STUDIO : CONNECTED (127.0.0.1:1234)</div>
+          </div>
+          <div class="window-body">
+            <!-- Left Pane -->
+            <div class="mock-left">
+              <div class="mock-recording-bar">
+                <div class="rec-indicator">
+                  <div class="pulse-dot"></div>
+                  <span class="rec-time">00:42:18</span>
+                  <span style="font-size: 11px; color: #8F9994; margin-left: 8px;">AAC • 44.1kHz</span>
+                </div>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">+ Mark Question</button>
+              </div>
+
+              <div class="mock-summary-card">
+                <div class="mock-card-head">
+                  <div style="font-weight: 600; font-size: 14px;">Qwen 2.5 Structured Summary</div>
+                  <span class="badge-ai">Extracted in 2.4s</span>
+                </div>
+                <ul class="takeaways-list">
+                  <li>Offline-first SQLite architecture prevents data loss during Wi-Fi drops.</li>
+                  <li>Overlapping chunking handles long workshops without hitting token limits.</li>
+                  <li>Inferred interpretations are strictly isolated from confirmed facts.</li>
+                  <li>Native MediaFoundation on Windows delivers zero-latency audio capture.</li>
+                  <li>Direct Android LAN routing enables handheld live monitoring.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Right Pane -->
+            <div class="mock-right">
+              <div class="stream-header">
+                <span>Timestamped Audio Stream</span>
+                <span>Speaker Alignment</span>
+              </div>
+              <div class="transcript-segment">
+                <span class="transcript-time">00:41:20</span>
+                "When you look at edge AI deployments, the primary constraint is not model size, but latency and local context preservation..."
+              </div>
+              <div class="transcript-segment active">
+                <span class="transcript-time">00:41:52</span>
+                "By keeping the SQLite database in WAL mode on disk, we can run concurrent background indexing while the speaker talks."
+              </div>
+              <div class="transcript-segment">
+                <span class="transcript-time">00:42:10</span>
+                "Let's pin a question here: How does Android handle the cleartext HTTP connection to LM Studio?"
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Editorial Philosophy Section -->
+  <section class="philosophy" id="offline">
+    <div class="container editorial-grid">
+      <div class="editorial-quote">
+        “Your thoughts and company workshops belong on <span>your hardware</span>, not a remote server queue.”
+      </div>
+      <div class="editorial-body">
+        Modern transcription tools require continuous internet, cloud accounts, and monthly API subscriptions that transmit sensitive discussions outside your perimeter.<br><br>
+        <strong>WorkshopFlow</strong> reimagines note-taking from the ground up: your audio stays in local app directories, your notes live in an encrypted SQLite database, and summaries run locally through your own GPU with LM Studio.
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Cards -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">Engineered for deep work</h2>
+        <p style="color: var(--text-muted); font-size: 16px;">Designed with the tactile clarity of print and the power of edge machine learning.</p>
+      </div>
+
+      <div class="cards-grid">
+        <div class="feature-card">
+          <div>
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Dual Platform Native</h3>
+            <p class="card-desc">Compiled natively for Windows 11 desktop with high-performance MediaFoundation audio and Android mobile with responsive Material 3 layouts.</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div>
+            <div class="card-icon">🧠</div>
+            <h3 class="card-title">Qwen & LM Studio</h3>
+            <p class="card-desc">Integrates with OpenAI-compatible local APIs. Overlapping chunking processes 2-hour long sessions without truncating nuances or hitting memory ceilings.</p>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div>
+            <div class="card-icon">💾</div>
+            <h3 class="card-title">Drift SQLite Engine</h3>
+            <p class="card-desc">Write-Ahead Logging (WAL) and foreign-key cascades ensure transactional safety. Fast full-text search across titles, topics, tags, and transcripts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture & LM Studio Setup -->
+  <section class="architecture" id="architecture">
+    <div class="container">
+      <div class="arch-box">
+        <div>
+          <div class="pill-tag" style="margin-bottom: 16px;">Private Infrastructure</div>
+          <h2 style="font-family: var(--font-serif); font-size: 36px; margin-bottom: 16px;">Works with your laptop's local LLM</h2>
+          <p style="color: var(--text-muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+            Fire up LM Studio, load your favorite model (Qwen 2.5 7B, Mistral, or Llama 3), and start the local server on port 1234. WorkshopFlow auto-detects the host on Windows and routes LAN IP traffic for Android.
+          </p>
+          <a href="#downloads" class="btn btn-secondary">View Documentation</a>
+        </div>
+        <div class="terminal-mock">
+          <div><span class="prompt">$</span> curl http://127.0.0.1:1234/v1/models</div>
+          <div style="color: #6C7A71; margin-top: 8px;">{ "object": "list", "data": [</div>
+          <div style="color: var(--accent-warm); padding-left: 16px;">"id": "qwen2.5-7b-instruct",</div>
+          <div style="color: #6C7A71; padding-left: 16px;">"state": "loaded_in_vram",</div>
+          <div style="color: #6C7A71; padding-left: 16px;">"context_window": 32768</div>
+          <div style="color: #6C7A71;">]}</div>
+          <div style="margin-top: 14px;"><span class="prompt">✓</span> WorkshopFlow connected via local HTTP.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner & Downloads -->
+  <section id="downloads">
+    <div class="container">
+      <div class="cta-banner">
+        <h2 class="cta-title">Start recording offline today.</h2>
+        <p class="cta-subtitle">Available now on the GitHub release pipeline for Windows 11 (x64) and Android (v23+).</p>
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          <a href="https://github.com/NavaneethanJ2010/design-championship-/actions" target="_blank" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px;">
+            Download from GitHub Actions
+          </a>
+          <a href="https://github.com/NavaneethanJ2010/design-championship-/tree/flutter-app" target="_blank" class="btn btn-secondary" style="padding: 12px 28px; font-size: 15px;">
+            View Source Code
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-inner">
+      <div>WorkshopFlow • Built with Flutter, Drift SQLite & LM Studio</div>
+      <div>Zero Cloud • 100% Local Privacy</div>
+    </div>
+  </footer>
+
+</body>
+</html>
