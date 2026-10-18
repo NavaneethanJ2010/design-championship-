@@ -2,9 +2,9 @@ name: Build Windows EXE and Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, flutter-app ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, flutter-app ]
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
