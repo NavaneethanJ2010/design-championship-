@@ -1,15 +1,18 @@
-name: Build Windows EXE and Android APK
+name: Build App and Deploy Website with Downloads
 
 on:
   push:
     branches: [ main, master, flutter-app ]
-  pull_request:
-    branches: [ main, master, flutter-app ]
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Build Android APK
+  # 1. Build Android APK
   # ---------------------------------------------------------------------------
   build-android:
     name: Build Android APK
@@ -40,17 +43,17 @@ jobs:
       - name: Build APK (Release)
         run: flutter build apk --release
 
-      - name: Upload Android APK Artifact
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: workshop-notes-android-apk
+          name: workshop-notes-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
   # ---------------------------------------------------------------------------
-  # Build Windows Release (.exe)
+  # 2. Build Windows Application (.exe bundle)
   # ---------------------------------------------------------------------------
   build-windows:
-    name: Build Windows EXE
+    name: Build Windows Application
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -80,8 +83,69 @@ jobs:
         run: |
           Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\workshop-notes-windows-x64.zip
 
-      - name: Upload Windows Executable Artifact
+      - name: Upload Windows Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: workshop-notes-windows-x64
+          name: workshop-notes-windows
           path: build/workshop-notes-windows-x64.zip
+
+  # ---------------------------------------------------------------------------
+  # 3. Publish GitHub Release (Hosts the downloadable files on permanent URLs)
+  # ---------------------------------------------------------------------------
+  publish-release:
+    name: Publish App Installers to GitHub Release
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: workshop-notes-apk
+          path: release-files/
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: workshop-notes-windows
+          path: release-files/
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "WorkshopFlow v1.0.0 Release"
+          body: |
+            ### Official WorkshopFlow Installers
+            - **Android APK**: Direct install on Android phones and tablets
+            - **Windows Bundle**: Portable x64 package with `workshop_notes.exe`
+          files: |
+            release-files/app-release.apk
+            release-files/workshop-notes-windows-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ---------------------------------------------------------------------------
+  # 4. Deploy Website to GitHub Pages
+  # ---------------------------------------------------------------------------
+  deploy-pages:
+    name: Deploy Web Showcase with Download Links
+    needs: [publish-release]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Web Showcase Directory
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'web_showcase/'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
