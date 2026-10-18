@@ -34,7 +34,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --verbose
 
       - name: Run code generation (Drift DB)
         run: dart run build_runner build --delete-conflicting-outputs
@@ -68,7 +68,7 @@ jobs:
         run: flutter config --enable-windows-desktop
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --verbose
 
       - name: Run code generation (Drift DB)
         run: dart run build_runner build --delete-conflicting-outputs
