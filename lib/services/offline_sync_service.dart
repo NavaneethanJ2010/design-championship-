@@ -134,9 +134,9 @@ class OfflineSyncService {
   /// Exports an entire workshop note with all transcripts and question markers into `.wnote` JSON
   Future<String> exportNoteBundle(String noteId) async {
     final note = await repository.getWorkshopNoteById(noteId);
-    final recording = await repository.getActiveRecordingForNote(noteId);
-    final segments = await repository.getTranscriptSegmentsForNote(noteId);
-    final markers = await repository.getQuestionMarkersForNote(noteId);
+    final recordingId = await repository.getActiveRecordingForNote(noteId);
+    final segments = recordingId != null ? await repository.getTranscriptSegments(recordingId) : <TranscriptSegmentDto>[];
+    final markers = recordingId != null ? await repository.getQuestionMarkers(recordingId) : <QuestionMarkerDto>[];
 
     final bundle = {
       'format': 'wnote',
@@ -153,17 +153,7 @@ class OfflineSyncService {
               'updatedAt': note.updatedAt.toIso8601String(),
             }
           : null,
-      'recording': recording != null
-          ? {
-              'id': recording.id,
-              'workshopNoteId': recording.workshopNoteId,
-              'filePath': recording.filePath,
-              'durationSeconds': recording.durationSeconds,
-              'audioFormat': recording.audioFormat,
-              'fileSizeBytes': recording.fileSizeBytes,
-              'recordedAt': recording.recordedAt.toIso8601String(),
-            }
-          : null,
+      'recordingId': recordingId,
       'segments': segments
           .map((s) => {
                 'id': s.id,
@@ -173,7 +163,6 @@ class OfflineSyncService {
                 'textContent': s.textContent,
                 'confidence': s.confidence,
                 'speaker': s.speaker,
-                'createdAt': s.createdAt.toIso8601String(),
               })
           .toList(),
       'markers': markers
@@ -184,7 +173,6 @@ class OfflineSyncService {
                 'queryText': m.queryText,
                 'contextNotes': m.contextNotes,
                 'isResolved': m.isResolved,
-                'createdAt': m.createdAt.toIso8601String(),
               })
           .toList(),
     };
@@ -221,9 +209,6 @@ class OfflineSyncService {
           textContent: seg['textContent'] as String? ?? '',
           confidence: (seg['confidence'] as num?)?.toDouble(),
           speaker: seg['speaker'] as String?,
-          createdAt: seg['createdAt'] != null
-              ? DateTime.tryParse(seg['createdAt'].toString()) ?? DateTime.now()
-              : DateTime.now(),
         );
         await repository.saveTranscriptSegment(segmentDto);
       }
@@ -239,9 +224,6 @@ class OfflineSyncService {
           queryText: m['queryText'] as String? ?? 'Question',
           contextNotes: m['contextNotes'] as String?,
           isResolved: m['isResolved'] as bool? ?? false,
-          createdAt: m['createdAt'] != null
-              ? DateTime.tryParse(m['createdAt'].toString()) ?? DateTime.now()
-              : DateTime.now(),
         );
         await repository.saveQuestionMarker(markerDto);
       }

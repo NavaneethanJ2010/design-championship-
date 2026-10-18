@@ -1,5 +1,26 @@
 import 'dart:async';
 
+/// Data transfer model for a workshop note.
+class WorkshopNoteDto {
+  final String id;
+  final String title;
+  final String? topic;
+  final String? tags;
+  final String? summary;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  WorkshopNoteDto({
+    required this.id,
+    required this.title,
+    this.topic,
+    this.tags,
+    this.summary,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+}
+
 /// Data transfer model for transcript segments.
 class TranscriptSegmentDto {
   final String id;
@@ -72,6 +93,16 @@ class QuestionMarkerDto {
 
 /// Core interface for note, recording, segment, and marker persistence.
 abstract class INoteRepository {
+  Future<List<WorkshopNoteDto>> getAllWorkshopNotes();
+
+  Future<WorkshopNoteDto?> getWorkshopNoteById(String noteId);
+
+  Future<void> saveWorkshopNote(WorkshopNoteDto note);
+
+  Future<void> deleteWorkshopNote(String noteId);
+
+  Future<String?> getActiveRecordingForNote(String noteId);
+
   Future<void> saveWorkshopHeader({
     required String noteId,
     required String title,

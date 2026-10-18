@@ -11,6 +11,69 @@ class NoteRepositoryImpl implements INoteRepository {
   NoteRepositoryImpl(this.db);
 
   @override
+  Future<List<WorkshopNoteDto>> getAllWorkshopNotes() async {
+    final rows = await (db.select(db.workshopNotes)
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)
+          ]))
+        .get();
+    return rows
+        .map(
+          (r) => WorkshopNoteDto(
+            id: r.id,
+            title: r.title,
+            topic: r.topic,
+            tags: r.tags,
+            summary: r.summary,
+            createdAt: r.createdAt,
+            updatedAt: r.updatedAt,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  Future<WorkshopNoteDto?> getWorkshopNoteById(String noteId) async {
+    final r = await db.getWorkshopNoteById(noteId);
+    if (r == null) return null;
+    return WorkshopNoteDto(
+      id: r.id,
+      title: r.title,
+      topic: r.topic,
+      tags: r.tags,
+      summary: r.summary,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    );
+  }
+
+  @override
+  Future<void> saveWorkshopNote(WorkshopNoteDto note) async {
+    await db.into(db.workshopNotes).insertOnConflictUpdate(
+          WorkshopNotesCompanion(
+            id: Value(note.id),
+            title: Value(note.title),
+            topic: Value(note.topic),
+            tags: Value(note.tags),
+            summary: Value(note.summary),
+            createdAt: Value(note.createdAt),
+            updatedAt: Value(note.updatedAt),
+          ),
+        );
+  }
+
+  @override
+  Future<void> deleteWorkshopNote(String noteId) async {
+    await db.deleteWorkshopNote(noteId);
+  }
+
+  @override
+  Future<String?> getActiveRecordingForNote(String noteId) async {
+    final rec = await (db.select(db.recordings)..where((tbl) => tbl.workshopNoteId.equals(noteId))).getSingleOrNull();
+    return rec?.id;
+  }
+
+  @override
   Future<void> saveWorkshopHeader({
     required String noteId,
     required String title,
