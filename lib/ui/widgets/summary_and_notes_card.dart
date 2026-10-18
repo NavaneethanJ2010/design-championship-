@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../domain/models/ai_summary_models.dart';
 
-class SummaryAndNotesCard extends StatelessWidget {
+class SummaryAndNotesCard extends StatefulWidget {
   final TextEditingController takeawaysController;
   final TextEditingController actionItemsController;
   final String? aiSummary;
   final bool isGeneratingSummary;
+  final void Function(TranslationMode mode)? onRequestAiSummaryWithMode;
   final VoidCallback onRequestAiSummary;
   final VoidCallback onContentChanged;
 
@@ -14,9 +16,38 @@ class SummaryAndNotesCard extends StatelessWidget {
     required this.actionItemsController,
     required this.aiSummary,
     required this.isGeneratingSummary,
+    this.onRequestAiSummaryWithMode,
     required this.onRequestAiSummary,
     required this.onContentChanged,
   });
+
+  @override
+  State<SummaryAndNotesCard> createState() => _SummaryAndNotesCardState();
+}
+
+class _SummaryAndNotesCardState extends State<SummaryAndNotesCard> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  TranslationMode _selectedMode = TranslationMode.autoTamilTanglishToEnglish;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _triggerGeneration() {
+    if (widget.onRequestAiSummaryWithMode != null) {
+      widget.onRequestAiSummaryWithMode!(_selectedMode);
+    } else {
+      widget.onRequestAiSummary();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,89 +65,191 @@ class SummaryAndNotesCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // AI Summary Header & Action Button
+            // AI Summary Header & Translation Mode Selector
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.auto_awesome, color: colorScheme.primary, size: 20),
+                    Icon(Icons.auto_awesome, color: colorScheme.primary, size: 22),
                     const SizedBox(width: 8),
                     Text(
-                      'AI Summary',
+                      'AI Synthesis & Translation',
                       style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 FilledButton.tonalIcon(
-                  onPressed: isGeneratingSummary ? null : onRequestAiSummary,
-                  icon: isGeneratingSummary
+                  onPressed: widget.isGeneratingSummary ? null : _triggerGeneration,
+                  icon: widget.isGeneratingSummary
                       ? const SizedBox(
                           width: 14,
                           height: 14,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.bolt, size: 16),
-                  label: Text(isGeneratingSummary ? 'Summarizing...' : 'Generate Summary'),
+                  label: Text(
+                    widget.isGeneratingSummary ? 'Translating & Synthesizing...' : 'Translate & Generate',
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
-            // AI Summary Content Container
+            // Translation Mode Dropdown
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
               ),
-              child: Text(
-                aiSummary != null && aiSummary!.isNotEmpty
-                    ? aiSummary!
-                    : 'No AI summary generated yet. Tap "Generate Summary" once you have transcript segments.',
-                style: textTheme.bodyMedium?.copyWith(
-                  fontStyle: aiSummary == null ? FontStyle.italic : FontStyle.normal,
-                  color: aiSummary == null ? colorScheme.outline : colorScheme.onSurface,
-                ),
+              child: Row(
+                children: [
+                  Icon(Icons.translate, size: 16, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Language Mode:',
+                    style: textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<TranslationMode>(
+                        value: _selectedMode,
+                        isExpanded: true,
+                        style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
+                        icon: const Icon(Icons.arrow_drop_down, size: 18),
+                        items: TranslationMode.values.map((mode) {
+                          return DropdownMenuItem<TranslationMode>(
+                            value: mode,
+                            child: Text(mode.label),
+                          );
+                        }).toList(),
+                        onChanged: (newMode) {
+                          if (newMode != null) {
+                            setState(() => _selectedMode = newMode);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 8),
+            if (widget.isGeneratingSummary) ...[
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(),
+            ],
 
-            // Key Takeaways Text Area
-            Text(
-              'Key Takeaways',
-              style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: takeawaysController,
-              maxLines: 4,
-              onChanged: (_) => onContentChanged(),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '• Main insight or key lesson learned...',
-              ),
-            ),
+            const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
-
-            // Action Items Text Area
-            Text(
-              'Action Items',
-              style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            // Tab bar for AI Output vs Manual Cornell Notes
+            TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(icon: Icon(Icons.menu_book, size: 18), text: 'AI Notes & Translation'),
+                Tab(icon: Icon(Icons.lightbulb_outline, size: 18), text: 'Takeaways'),
+                Tab(icon: Icon(Icons.check_circle_outline, size: 18), text: 'Action Items'),
+              ],
             ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: actionItemsController,
-              maxLines: 3,
-              onChanged: (_) => onContentChanged(),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '☐ Follow up on topic X...',
+            const SizedBox(height: 12),
+
+            // Tab View Body
+            SizedBox(
+              height: 320,
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Tab 1: AI Summary & Translated Markdown
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                    ),
+                    child: widget.aiSummary != null && widget.aiSummary!.isNotEmpty
+                        ? SingleChildScrollView(
+                            child: SelectableText(
+                              widget.aiSummary!,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                                height: 1.5,
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.translate, size: 36, color: colorScheme.outline),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Tamil/Tanglish auto-detected and translated to English.\nTap "Translate & Generate" to process recorded transcript segments.',
+                                  textAlign: TextAlign.center,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.outline,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+
+                  // Tab 2: Key Takeaways Cornell Text Area
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Key Takeaways (High-Impact Insights)',
+                        style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      Expanded(
+                        child: TextField(
+                          controller: widget.takeawaysController,
+                          maxLines: null,
+                          expands: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          onChanged: (_) => widget.onContentChanged(),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '1. Autonomous translation preserves Tamil concepts in proper English.\n2. In-app execution requires no cloud dependencies...',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Tab 3: Action Items Checklist
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Action Items & Follow-ups',
+                        style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      Expanded(
+                        child: TextField(
+                          controller: widget.actionItemsController,
+                          maxLines: null,
+                          expands: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          onChanged: (_) => widget.onContentChanged(),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '☐ Review lecture formula derivations\n☐ Run test script on local GPU',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

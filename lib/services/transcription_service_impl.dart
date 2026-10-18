@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../domain/models/ai_summary_models.dart';
 import '../domain/repositories/i_note_repository.dart';
 import '../domain/services/audio_and_ai_services.dart';
 import 'ai_summary_service.dart';
@@ -25,12 +26,14 @@ class TranscriptionServiceImpl implements ITranscriptionService {
     required String title,
     required String topic,
     required List<String> transcriptLines,
+    TranslationMode translationMode = TranslationMode.autoTamilTanglishToEnglish,
   }) async {
     final combinedTranscript = transcriptLines.join('\n');
     final structuredSummary = await aiSummaryService.summarizeWorkshopTranscript(
       title: title,
       topic: topic,
       fullTranscript: combinedTranscript,
+      translationMode: translationMode,
     );
     return structuredSummary.toFormattedMarkdown();
   }

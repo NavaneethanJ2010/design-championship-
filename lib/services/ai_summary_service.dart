@@ -51,11 +51,13 @@ class AISummaryService {
   }
 
   /// Generates a structured summary for the provided transcript text.
+  /// Automatically detects Tamil/Tanglish code-switching and translates to academic English notes.
   /// Handles chunking for long transcripts and returns a consolidated summary.
   Future<WorkshopStructuredSummary> summarizeWorkshopTranscript({
     required String title,
     required String topic,
     required String fullTranscript,
+    TranslationMode translationMode = TranslationMode.autoTamilTanglishToEnglish,
     SummaryCancellationToken? cancellationToken,
   }) async {
     if (fullTranscript.trim().isEmpty) {
@@ -74,6 +76,7 @@ class AISummaryService {
         title: title,
         topic: topic,
         transcriptContent: chunks.first,
+        translationMode: translationMode,
         cancellationToken: cancellationToken,
       );
     }
@@ -90,6 +93,7 @@ class AISummaryService {
         title: '$title (Part ${i + 1}/${chunks.length})',
         topic: topic,
         transcriptContent: chunks[i],
+        translationMode: translationMode,
         cancellationToken: cancellationToken,
       );
       intermediateSummaries.add(partialSummary);
@@ -100,44 +104,81 @@ class AISummaryService {
       title: title,
       topic: topic,
       intermediateSummaries: intermediateSummaries,
+      translationMode: translationMode,
       cancellationToken: cancellationToken,
     );
   }
 
-  /// Internal request to Qwen LLM with strict JSON schema instructions.
+  /// Internal request to Qwen LLM with strict JSON schema instructions and bilingual translation.
   Future<WorkshopStructuredSummary> _generateStructuredSummaryForText({
     required String title,
     required String topic,
     required String transcriptContent,
+    required TranslationMode translationMode,
     SummaryCancellationToken? cancellationToken,
   }) async {
+    String languageDirective = '';
+    switch (translationMode) {
+      case TranslationMode.autoTamilTanglishToEnglish:
+        languageDirective = '''
+AUTONOMOUS BILINGUAL COMPREHENSION & TRANSLATION ENGINE:
+- The workshop transcript may contain spoken Tamil script (தமிழ்), Romanized Tanglish (Tamil spoken in English alphabet, e.g. "Indha loop la condition satisfy aagalana break aagum", "Idhula memory leak vara chance iruku", "Function call pannumbodhu pointer pass pandrom"), or code-switched English.
+- Identify the language mixture and set "detected_language" (e.g. "Tamil", "Tanglish (Tamil + English)", or "English").
+- Set "is_translated" to true if Tamil or Tanglish was detected; otherwise false.
+- Set "translated_language" to "English".
+- TRANSLATE and CONVERT all spoken colloquial phrases, informal Tamil explanations, and mixed expressions into FLUENT, POLISHED, ACADEMIC ENGLISH NOTES.
+- Use accurate technical, scientific, and engineering terminology in English.
+''';
+        break;
+      case TranslationMode.directEnglish:
+        languageDirective = '''
+LANGUAGE DIRECTIVE:
+- Analyze transcript directly in English.
+- Set "detected_language" to "English", "is_translated" to false, and "translated_language" to "English".
+''';
+        break;
+      case TranslationMode.preserveBilingual:
+        languageDirective = '''
+LANGUAGE DIRECTIVE:
+- Preserve original spoken words verbatim where applicable.
+- Detect primary language in "detected_language".
+- Set "is_translated" to false.
+''';
+        break;
+    }
+
     final systemPrompt = '''
-You are an expert technical workshop analyst and scribe.
-Analyze the provided transcript segment and extract key information.
+You are an expert technical workshop analyst, academic scribe, and multilingual translator.
+Analyze the provided transcript segment and extract key technical insights.
+
+$languageDirective
 
 STRICT REQUIREMENTS:
-1. Return ONLY a valid JSON object matching the requested schema. No markdown fences (```json), no conversational filler.
+1. Return ONLY a valid JSON object matching the requested schema. No markdown fences (```json), no preamble, no conversational filler.
 2. Distinguish verified facts explicitly stated by the speaker from inferences. Place inferences in "uncertain_interpretations".
-3. Extract EXACTLY 5 high-impact "key_takeaways".
-4. Extract explicit "action_items".
+3. Extract EXACTLY 5 high-impact "key_takeaways" written in clear, concise, professional English.
+4. Extract explicit "action_items" (tasks, assignments, exercises, follow-ups).
 5. Extract explicit "questions_and_answers". If an answer is unclear or inferred, set "is_answer_confirmed" to false.
-6. Extract specialized "terminology" defined or emphasized.
+6. Extract specialized "terminology" defined or emphasized with clear English definitions.
 
 JSON SCHEMA:
 {
+  "detected_language": "Tanglish (Tamil + English)",
+  "is_translated": true,
+  "translated_language": "English",
   "key_takeaways": ["Takeaway 1", "Takeaway 2", "Takeaway 3", "Takeaway 4", "Takeaway 5"],
   "action_items": ["Action 1", "Action 2"],
   "questions_and_answers": [
     {
-      "question": "Question text?",
-      "answer": "Answer text",
+      "question": "Question text in fluent English?",
+      "answer": "Answer text in fluent English",
       "is_answer_confirmed": true
     }
   ],
   "terminology": [
     {
       "term": "Term",
-      "definition": "Definition or explanation given",
+      "definition": "Definition or explanation given in English",
       "context": "Context where term was used"
     }
   ],
@@ -209,6 +250,7 @@ $transcriptContent
     required String title,
     required String topic,
     required List<WorkshopStructuredSummary> intermediateSummaries,
+    required TranslationMode translationMode,
     SummaryCancellationToken? cancellationToken,
   }) async {
     final intermediateJsonList = intermediateSummaries.map((s) => s.toJson()).toList();
@@ -217,9 +259,11 @@ $transcriptContent
     final synthesisPrompt = '''
 You are synthesizing multiple partial summaries from consecutive sections of the workshop "$title" (Topic: $topic).
 
-Consolidate the following intermediate summaries into a SINGLE cohesive final summary.
-Select the top 5 most critical "key_takeaways" across the entire workshop.
-Merge all unique action items, Q&A pairs, and terminology definitions without duplicates.
+Consolidate the following intermediate summaries into a SINGLE cohesive final academic summary in English.
+- Select the top 5 most critical "key_takeaways" across the entire workshop, ensuring all points are in crisp, academic English.
+- Merge all unique action items, Q&A pairs, and terminology definitions without duplicates.
+- Ensure any remaining Tamil/Tanglish phrases from intermediate chunks are completely translated into formal English.
+- Preserve "detected_language" based on overall workshop content.
 
 Return ONLY a valid JSON object matching the standard schema.
 ''';

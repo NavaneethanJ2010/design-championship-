@@ -1,3 +1,5 @@
+import '../models/ai_summary_models.dart';
+
 enum RecordingStatus { idle, recording, paused, stopped }
 
 abstract class IAudioRecordingService {
@@ -32,5 +34,6 @@ abstract class ITranscriptionService {
     required String title,
     required String topic,
     required List<String> transcriptLines,
+    TranslationMode translationMode = TranslationMode.autoTamilTanglishToEnglish,
   });
 }

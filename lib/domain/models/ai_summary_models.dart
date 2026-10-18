@@ -54,6 +54,23 @@ class TerminologyItem {
       };
 }
 
+enum TranslationMode {
+  autoTamilTanglishToEnglish,
+  directEnglish,
+  preserveBilingual;
+
+  String get label {
+    switch (this) {
+      case TranslationMode.autoTamilTanglishToEnglish:
+        return 'Auto-Detect & Translate to English (Tamil / Tanglish)';
+      case TranslationMode.directEnglish:
+        return 'Direct English Analysis';
+      case TranslationMode.preserveBilingual:
+        return 'Preserve Original Spoken Language';
+    }
+  }
+}
+
 /// Structured AI summary returned after local processing with Qwen / LM Studio.
 class WorkshopStructuredSummary {
   final List<String> keyTakeaways; // Exactly 5 primary takeaways
@@ -62,6 +79,9 @@ class WorkshopStructuredSummary {
   final List<TerminologyItem> terminology;
   final List<String> uncertainInterpretations; // Explicitly separates inferred insights from stated facts
   final String rawPromptContext;
+  final String detectedLanguage;
+  final bool isTranslated;
+  final String translatedLanguage;
 
   WorkshopStructuredSummary({
     required this.keyTakeaways,
@@ -70,6 +90,9 @@ class WorkshopStructuredSummary {
     required this.terminology,
     this.uncertainInterpretations = const [],
     this.rawPromptContext = '',
+    this.detectedLanguage = 'English',
+    this.isTranslated = false,
+    this.translatedLanguage = 'English',
   });
 
   factory WorkshopStructuredSummary.fromJson(Map<String, dynamic> json) {
@@ -91,6 +114,9 @@ class WorkshopStructuredSummary {
           .map((e) => TerminologyItem.fromJson(e))
           .toList(),
       uncertainInterpretations: uncertainRaw.map((e) => e.toString()).toList(),
+      detectedLanguage: json['detected_language'] as String? ?? 'English',
+      isTranslated: json['is_translated'] as bool? ?? (json['detected_language'] != null && json['detected_language'] != 'English'),
+      translatedLanguage: json['translated_language'] as String? ?? 'English',
     );
   }
 
@@ -100,10 +126,18 @@ class WorkshopStructuredSummary {
         'questions_and_answers': questionsAndAnswers.map((e) => e.toJson()).toList(),
         'terminology': terminology.map((e) => e.toJson()).toList(),
         'uncertain_interpretations': uncertainInterpretations,
+        'detected_language': detectedLanguage,
+        'is_translated': isTranslated,
+        'translated_language': translatedLanguage,
       };
 
   String toFormattedMarkdown() {
     final buffer = StringBuffer();
+
+    if (isTranslated || detectedLanguage.toLowerCase().contains('tamil') || detectedLanguage.toLowerCase().contains('tanglish')) {
+      buffer.writeln('> 🌐 **Language Detection & Translation**');
+      buffer.writeln('> Spoken Language: `$detectedLanguage` ➔ Translated to: `$translatedLanguage (Academic Notes)`\n');
+    }
 
     buffer.writeln('### 💡 5 Key Takeaways');
     for (int i = 0; i < keyTakeaways.length; i++) {

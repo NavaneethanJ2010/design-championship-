@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WorkshopFlow — Offline AI Note-Taking & Transcribe</title>
+  <title>WorkshopFlow — Offline AI Note-Taker for Android & Windows 11</title>
   
   <!-- Fonts: Serif Editorial + Clean Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,7 +52,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Subtle background grid & radial glow like Wispr Flow */
+    /* Subtle background ambience */
     .bg-ambience {
       position: fixed;
       inset: 0;
@@ -126,7 +126,7 @@
 
     .nav-links {
       display: flex;
-      gap: 32px;
+      gap: 28px;
       list-style: none;
     }
 
@@ -145,7 +145,7 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
     .btn {
@@ -158,6 +158,7 @@
       font-weight: 600;
       text-decoration: none;
       cursor: pointer;
+      border: none;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -185,9 +186,20 @@
       background: #FFFFFF;
     }
 
+    .btn-accent {
+      background: rgba(46, 229, 157, 0.12);
+      color: var(--accent-green);
+      border: 1px solid rgba(46, 229, 157, 0.3);
+    }
+
+    .btn-accent:hover {
+      background: rgba(46, 229, 157, 0.2);
+      border-color: var(--accent-green);
+    }
+
     /* Hero Section */
     .hero {
-      padding: 100px 0 60px;
+      padding: 90px 0 60px;
       text-align: center;
     }
 
@@ -215,7 +227,7 @@
 
     .hero-title {
       font-family: var(--font-serif);
-      font-size: clamp(48px, 7vw, 84px);
+      font-size: clamp(44px, 6.5vw, 80px);
       line-height: 1.05;
       font-weight: 400;
       letter-spacing: -0.02em;
@@ -229,7 +241,7 @@
     }
 
     .hero-sub {
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto 36px;
       font-size: 18px;
       line-height: 1.6;
@@ -240,8 +252,9 @@
     .hero-buttons {
       display: flex;
       justify-content: center;
-      gap: 16px;
-      margin-bottom: 50px;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
     }
 
     .hero-specs {
@@ -250,6 +263,7 @@
       gap: 24px;
       font-size: 13px;
       color: var(--text-dim);
+      flex-wrap: wrap;
     }
 
     .hero-specs span {
@@ -389,6 +403,16 @@
       border: 1px solid rgba(46, 229, 157, 0.2);
     }
 
+    .badge-tamil {
+      background: rgba(226, 183, 122, 0.12);
+      color: var(--accent-warm);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(226, 183, 122, 0.25);
+    }
+
     .takeaways-list {
       list-style: none;
       display: flex;
@@ -411,7 +435,7 @@
       line-height: 1.8;
     }
 
-    /* Right pane of app mock (Live Transcript stream) */
+    /* Right pane of app mock */
     .mock-right {
       padding: 28px;
       background: rgba(0, 0, 0, 0.2);
@@ -457,51 +481,153 @@
       background: var(--surface-elevated);
     }
 
-    /* Editorial Section: Offline First Philosophy */
-    .philosophy {
-      padding: 120px 0;
+    /* Tamil to English Interactive Translation Showcase Section */
+    .tamil-showcase {
+      padding: 100px 0;
       border-bottom: 1px solid var(--border);
     }
 
-    .editorial-grid {
+    .translation-comparison-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
+      gap: 28px;
+      margin-top: 40px;
     }
 
     @media (max-width: 880px) {
-      .editorial-grid {
+      .translation-comparison-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .editorial-quote {
-      font-family: var(--font-serif);
-      font-size: clamp(32px, 4vw, 44px);
-      line-height: 1.2;
-      color: var(--text-main);
+    .lang-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      position: relative;
     }
 
-    .editorial-quote span {
+    .lang-card.highlight {
+      border-color: rgba(46, 229, 157, 0.3);
+      box-shadow: 0 10px 30px -10px var(--accent-glow);
+    }
+
+    .lang-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .lang-title {
+      font-size: 17px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quote-box {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid var(--accent-warm);
+      padding: 14px 16px;
+      border-radius: 0 10px 10px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #D3DAD6;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .quote-box.english-result {
+      border-left-color: var(--accent-green);
+      font-style: normal;
+    }
+
+    /* Step-by-step Tabs */
+    .setup-guide {
+      padding: 100px 0;
+    }
+
+    .tab-nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 22px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
       color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
     }
 
-    .editorial-body {
-      color: var(--text-muted);
-      font-size: 16px;
-      line-height: 1.7;
+    .tab-btn.active {
+      background: var(--text-main);
+      color: var(--bg);
+      border-color: var(--text-main);
     }
 
-    /* Features Grid (Wispr flow style cards) */
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .setup-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    .setup-step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+
+    .setup-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(46, 229, 157, 0.15);
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Features Grid */
     .features {
       padding: 100px 0;
+      border-bottom: 1px solid var(--border);
     }
 
     .section-head {
       text-align: center;
-      max-width: 600px;
-      margin: 0 auto 60px;
+      max-width: 680px;
+      margin: 0 auto 50px;
     }
 
     .section-title {
@@ -564,44 +690,6 @@
       line-height: 1.6;
     }
 
-    /* Architecture / LM Studio Section */
-    .architecture {
-      padding: 80px 0 120px;
-    }
-
-    .arch-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 48px;
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 40px;
-      align-items: center;
-    }
-
-    @media (max-width: 880px) {
-      .arch-box {
-        grid-template-columns: 1fr;
-        padding: 30px;
-      }
-    }
-
-    .terminal-mock {
-      background: #000;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-      color: #A0B3A6;
-      line-height: 1.6;
-    }
-
-    .terminal-mock .prompt {
-      color: var(--accent-green);
-    }
-
     /* Download Banner / CTA */
     .cta-banner {
       background: radial-gradient(circle at 50% 50%, rgba(46, 229, 157, 0.12) 0%, rgba(17, 20, 19, 0.8) 100%);
@@ -609,7 +697,7 @@
       border-radius: 28px;
       padding: 70px 40px;
       text-align: center;
-      margin-bottom: 100px;
+      margin: 80px 0;
     }
 
     .cta-title {
@@ -620,9 +708,59 @@
 
     .cta-subtitle {
       color: var(--text-muted);
-      max-width: 520px;
+      max-width: 540px;
       margin: 0 auto 32px;
       font-size: 16px;
+    }
+
+    /* QR Code Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .qr-container {
+      background: #FFFFFF;
+      padding: 16px;
+      border-radius: 16px;
+      display: inline-block;
+      margin: 20px 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
     /* Footer */
@@ -660,13 +798,17 @@
         WorkshopFlow
       </a>
       <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#architecture">Architecture</a></li>
-        <li><a href="#offline">Zero Cloud</a></li>
+        <li><a href="#translation">Tamil ➔ English</a></li>
+        <li><a href="#features">Dual Platform</a></li>
+        <li><a href="#setup">Setup Guide</a></li>
         <li><a href="#downloads">Downloads</a></li>
       </ul>
       <div class="nav-actions">
-        <a href="#downloads" class="btn btn-primary">Get the App</a>
+        <button onclick="openQrModal()" class="btn btn-secondary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Scan QR for Mobile
+        </button>
+        <a href="#downloads" class="btn btn-primary">Get App</a>
       </div>
     </div>
   </nav>
@@ -676,14 +818,14 @@
     <div class="container">
       <div class="pill-tag">
         <div class="pill-dot"></div>
-        Offline Local AI Workshop Scribe
+        Offline Local AI Workshop Scribe • Android & Windows 11
       </div>
       <h1 class="hero-title">
-        Capture workshops.<br>
+        Focus on the workshop.<br>
         <em>Synthesize</em> with local intelligence.
       </h1>
       <p class="hero-sub">
-        Record audio, generate timestamped transcripts, and distill 5 key takeaways using a locally hosted Qwen LLM on your laptop. Complete privacy, zero cloud lock-in.
+        Put your phone on the desk to capture clear audio and snap slide whiteboards. Let your laptop take structured Cornell notes, translate spoken Tamil/Tanglish into academic English, and synthesize key takeaways using your local GPU. Zero cloud, 100% privacy.
       </p>
 
       <div class="hero-buttons">
@@ -693,15 +835,19 @@
         </a>
         <a href="https://github.com/NavaneethanJ2010/design-championship-/releases/download/v1.0.0/app-release.apk" class="btn btn-secondary" download>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-          Install Android APK (.apk)
+          Download Android APK (.apk)
         </a>
+        <button onclick="openQrModal()" class="btn btn-accent">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Point Phone to Install
+        </button>
       </div>
 
       <div class="hero-specs">
+        <span>✦ Autonomous Tamil ➔ English Translation</span>
+        <span>✦ 100% Offline P2P Sync</span>
+        <span>✦ LM Studio Local Qwen 2.5</span>
         <span>✦ SQLite & Drift DB</span>
-        <span>✦ 100% Offline Capable</span>
-        <span>✦ LM Studio OpenAI REST</span>
-        <span>✦ Material Design 3</span>
       </div>
 
       <!-- App Showcase Mockup -->
@@ -713,9 +859,12 @@
             </div>
             <div class="window-title">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              WorkshopFlow Desktop — Offline Session #042
+              WorkshopFlow Desktop — Algorithms & Systems Session
             </div>
-            <div class="badge-ai">LM STUDIO : CONNECTED (127.0.0.1:1234)</div>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge-tamil">🌐 TAMIL / TANGLISH TRANSLATED</span>
+              <span class="badge-ai">LM STUDIO : CONNECTED (127.0.0.1:1234)</span>
+            </div>
           </div>
           <div class="window-body">
             <!-- Left Pane -->
@@ -724,22 +873,22 @@
                 <div class="rec-indicator">
                   <div class="pulse-dot"></div>
                   <span class="rec-time">00:42:18</span>
-                  <span style="font-size: 11px; color: #8F9994; margin-left: 8px;">AAC • 44.1kHz</span>
+                  <span style="font-size: 11px; color: #8F9994; margin-left: 8px;">Desk Phone Mic Link • P2P Sync</span>
                 </div>
                 <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">+ Mark Question</button>
               </div>
 
               <div class="mock-summary-card">
                 <div class="mock-card-head">
-                  <div style="font-weight: 600; font-size: 14px;">Qwen 2.5 Structured Summary</div>
-                  <span class="badge-ai">Extracted in 2.4s</span>
+                  <div style="font-weight: 600; font-size: 14px;">In-App Academic English Synthesis</div>
+                  <span class="badge-ai">Synthesized in 2.1s</span>
                 </div>
                 <ul class="takeaways-list">
-                  <li>Offline-first SQLite architecture prevents data loss during Wi-Fi drops.</li>
-                  <li>Overlapping chunking handles long workshops without hitting token limits.</li>
-                  <li>Inferred interpretations are strictly isolated from confirmed facts.</li>
-                  <li>Native MediaFoundation on Windows delivers zero-latency audio capture.</li>
-                  <li>Direct Android LAN routing enables handheld live monitoring.</li>
+                  <li>Asynchronous execution isolates state updates from the main UI render loop.</li>
+                  <li>Explicit loop boundary assertions prevent runaway thread execution and CPU starvation.</li>
+                  <li>Local SQLite transactions in WAL mode prevent write-lock contention.</li>
+                  <li>Desk companion phone captures speaker audio without typing keystroke noise.</li>
+                  <li>Direct hotspot connection syncs slide whiteboards without college Wi-Fi credentials.</li>
                 </ul>
               </div>
             </div>
@@ -747,20 +896,20 @@
             <!-- Right Pane -->
             <div class="mock-right">
               <div class="stream-header">
-                <span>Timestamped Audio Stream</span>
-                <span>Speaker Alignment</span>
+                <span>Spoken Tanglish Transcript</span>
+                <span>Real-Time English Alignment</span>
               </div>
               <div class="transcript-segment">
                 <span class="transcript-time">00:41:20</span>
-                "When you look at edge AI deployments, the primary constraint is not model size, but latency and local context preservation..."
+                "Indha loop la condition satisfy aagalana break aagum... and state update aagura varaikum UI block aagadhu."
               </div>
               <div class="transcript-segment active">
                 <span class="transcript-time">00:41:52</span>
-                "By keeping the SQLite database in WAL mode on disk, we can run concurrent background indexing while the speaker talks."
+                "Enna reason na async thread la run aagudhu. Background worker complete aana udane state update notify aagum."
               </div>
               <div class="transcript-segment">
                 <span class="transcript-time">00:42:10</span>
-                "Let's pin a question here: How does Android handle the cleartext HTTP connection to LM Studio?"
+                "Question: Memory leak varaama iruka enna pannanum? Dispose callback call pannanum."
               </div>
             </div>
           </div>
@@ -769,75 +918,195 @@
     </div>
   </section>
 
-  <!-- Editorial Philosophy Section -->
-  <section class="philosophy" id="offline">
-    <div class="container editorial-grid">
-      <div class="editorial-quote">
-        “Your thoughts and company workshops belong on <span>your hardware</span>, not a remote server queue.”
+  <!-- Tamil to English Autonomous Translation Section -->
+  <section class="tamil-showcase" id="translation">
+    <div class="container">
+      <div class="section-head">
+        <div class="pill-tag" style="margin-bottom: 12px;">Bilingual Intelligence</div>
+        <h2 class="section-title">Autonomous Tamil & Tanglish ➔ Proper English Notes</h2>
+        <p style="color: var(--text-muted); font-size: 16px;">
+          Workshops in India frequently feature speakers explaining complex engineering concepts in Tamil or code-switched Tanglish. WorkshopFlow automatically detects colloquial spoken Tamil and translates all takeaways, definitions, and action items into fluent, professional English notes.
+        </p>
       </div>
-      <div class="editorial-body">
-        Modern transcription tools require continuous internet, cloud accounts, and monthly API subscriptions that transmit sensitive discussions outside your perimeter.<br><br>
-        <strong>WorkshopFlow</strong> reimagines note-taking from the ground up: your audio stays in local app directories, your notes live in an encrypted SQLite database, and summaries run locally through your own GPU with LM Studio.
+
+      <div class="translation-comparison-grid">
+        <!-- Spoken Instructor Input -->
+        <div class="lang-card">
+          <div class="lang-card-header">
+            <span class="lang-title">
+              <span style="color: var(--accent-warm);">🎙️</span> Spoken by Instructor (Tanglish / Tamil)
+            </span>
+            <span class="badge-tamil">Spoken Input</span>
+          </div>
+          <div class="quote-box">
+            “Indha loop la condition satisfy aagalana break aagum... and state update aagura varaikum UI block aagadhu. Enna reason na async thread la run aagudhu. Adhunaala 60 FPS drop aagama irukum.”
+          </div>
+          <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+            Colloquial Tamil lecture explanations, everyday analogies, and spoken code-switching are captured effortlessly by the phone placed on the speaker’s podium.
+          </p>
+        </div>
+
+        <!-- Translated English Output -->
+        <div class="lang-card highlight">
+          <div class="lang-card-header">
+            <span class="lang-title">
+              <span style="color: var(--accent-green);">📝</span> Generated Notes (Academic English)
+            </span>
+            <span class="badge-ai">100% In-App Synthesized</span>
+          </div>
+          <div class="quote-box english-result">
+            <strong>💡 Key Takeaways:</strong><br>
+            1. Asynchronous execution guarantees non-blocking UI rendering, maintaining smooth 60 FPS performance.<br>
+            2. Explicit loop termination conditions prevent infinite cycles and worker thread starvation.<br><br>
+            <strong>📖 Important Terminology:</strong><br>
+            • <em>Non-Blocking Event Loop</em>: Concurrency architecture where background mutations are decoupled from the main draw thread.
+          </div>
+          <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.6;">
+            Zero manual translation required. Your Cornell notes, revision sheets, and exam study guides are formatted in pristine, publication-grade English.
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Feature Cards -->
+  <!-- Dual Device Features Grid -->
   <section class="features" id="features">
     <div class="container">
       <div class="section-head">
-        <h2 class="section-title">Engineered for deep work</h2>
-        <p style="color: var(--text-muted); font-size: 16px;">Designed with the tactile clarity of print and the power of edge machine learning.</p>
+        <h2 class="section-title">Dual-device harmony in the lecture hall</h2>
+        <p style="color: var(--text-muted); font-size: 16px;">Designed for the student who wants to actively listen, participate, and understand.</p>
       </div>
 
       <div class="cards-grid">
         <div class="feature-card">
           <div>
-            <div class="card-icon">⚡</div>
-            <h3 class="card-title">Dual Platform Native</h3>
-            <p class="card-desc">Compiled natively for Windows 11 desktop with high-performance MediaFoundation audio and Android mobile with responsive Material 3 layouts.</p>
+            <div class="card-icon">📱</div>
+            <h3 class="card-title">Handheld Companion (Android)</h3>
+            <p class="card-desc">Keep your phone on the desk for pristine audio close to the speaker. Snap photos of whiteboard equations with 1-tap, and hit quick reaction pins when you feel confused.</p>
           </div>
         </div>
 
         <div class="feature-card">
           <div>
-            <div class="card-icon">🧠</div>
-            <h3 class="card-title">Qwen & LM Studio</h3>
-            <p class="card-desc">Integrates with OpenAI-compatible local APIs. Overlapping chunking processes 2-hour long sessions without truncating nuances or hitting memory ceilings.</p>
+            <div class="card-icon">💻</div>
+            <h3 class="card-title">Power Dashboard (Windows 11)</h3>
+            <p class="card-desc">Your laptop dashboard arranges live transcripts, synchronized slide images, and full Cornell note editing. Run deep local AI synthesis using your laptop’s GPU without cloud lag.</p>
           </div>
         </div>
 
         <div class="feature-card">
           <div>
-            <div class="card-icon">💾</div>
-            <h3 class="card-title">Drift SQLite Engine</h3>
-            <p class="card-desc">Write-Ahead Logging (WAL) and foreign-key cascades ensure transactional safety. Fast full-text search across titles, topics, tags, and transcripts.</p>
+            <div class="card-icon">🔄</div>
+            <h3 class="card-title">Zero-Cloud P2P Hotspot Sync</h3>
+            <p class="card-desc">No college Wi-Fi logins, no cloud tokens, no eavesdropping. Devices pair directly over your phone’s mobile hotspot or local Wi-Fi via built-in high-speed HTTP transfer.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Architecture & LM Studio Setup -->
-  <section class="architecture" id="architecture">
+  <!-- Step-by-Step Offline Setup Guide -->
+  <section class="setup-guide" id="setup">
     <div class="container">
-      <div class="arch-box">
-        <div>
-          <div class="pill-tag" style="margin-bottom: 16px;">Private Infrastructure</div>
-          <h2 style="font-family: var(--font-serif); font-size: 36px; margin-bottom: 16px;">Works with your laptop's local LLM</h2>
-          <p style="color: var(--text-muted); font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
-            Fire up LM Studio, load your favorite model (Qwen 2.5 7B, Mistral, or Llama 3), and start the local server on port 1234. WorkshopFlow auto-detects the host on Windows and routes LAN IP traffic for Android.
-          </p>
-          <a href="#downloads" class="btn btn-secondary">View Documentation</a>
+      <div class="section-head">
+        <h2 class="section-title">Zero-cloud offline setup guide</h2>
+        <p style="color: var(--text-muted); font-size: 16px;">Set up in 2 minutes before your lecture begins.</p>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'tab-hotspot')">1. Mobile Hotspot Pairing</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-lmstudio')">2. LM Studio Local Server</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-slides')">3. Slide & Reaction Pinning</button>
+      </div>
+
+      <!-- Tab 1: Hotspot Pairing -->
+      <div id="tab-hotspot" class="tab-pane active">
+        <div class="setup-card">
+          <div class="setup-step">
+            <div class="step-number">1</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Turn on Mobile Hotspot (No Internet Needed)</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Enable your phone’s Mobile Hotspot. Connect your Windows laptop to this hotspot. Mobile data can remain <strong>turned off</strong>; the devices communicate over direct local IPv4.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">2</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Tap P2P Sync in WorkshopFlow</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Open WorkshopFlow on Windows and tap the <strong>Sync Hub</strong> icon in the app bar. The local sync server will display an IP like <code>http://192.168.43.1:8089</code>.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">3</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Automatic Real-Time Sync</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Any audio recorded on your phone or slide snapped during the workshop instantly streams to your laptop’s SQLite database.
+              </p>
+            </div>
+          </div>
         </div>
-        <div class="terminal-mock">
-          <div><span class="prompt">$</span> curl http://127.0.0.1:1234/v1/models</div>
-          <div style="color: #6C7A71; margin-top: 8px;">{ "object": "list", "data": [</div>
-          <div style="color: var(--accent-warm); padding-left: 16px;">"id": "qwen2.5-7b-instruct",</div>
-          <div style="color: #6C7A71; padding-left: 16px;">"state": "loaded_in_vram",</div>
-          <div style="color: #6C7A71; padding-left: 16px;">"context_window": 32768</div>
-          <div style="color: #6C7A71;">]}</div>
-          <div style="margin-top: 14px;"><span class="prompt">✓</span> WorkshopFlow connected via local HTTP.</div>
+      </div>
+
+      <!-- Tab 2: LM Studio -->
+      <div id="tab-lmstudio" class="tab-pane">
+        <div class="setup-card">
+          <div class="setup-step">
+            <div class="step-number">1</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Download Qwen 2.5 on LM Studio</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Open LM Studio on your Windows laptop and download <code>qwen2.5-7b-instruct</code> (or 3B for lightweight laptops).
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">2</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Start Local Server on Port 1234</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Navigate to the Local Server tab (`<->`), choose your loaded model, and click <strong>Start Server</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">3</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">1-Tap Translation & Synthesis</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Inside WorkshopFlow, select <em>"Auto-Detect & Translate to English (Tamil / Tanglish)"</em> and tap <strong>Translate & Generate</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Slide Snapping -->
+      <div id="tab-slides" class="tab-pane">
+        <div class="setup-card">
+          <div class="setup-step">
+            <div class="step-number">1</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Snap Whiteboards with 1-Tap</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                When the speaker writes formulas on the board or flips slides, point your phone and tap the snap button. It automatically attaches to the exact second in the audio stream.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-number">2</div>
+            <div>
+              <h4 style="font-size: 16px; margin-bottom: 4px;">Pin Questions & Aha! Moments</h4>
+              <p style="font-size: 14px; color: var(--text-muted);">
+                Tap "Mark Question" or "Important" anytime during the talk. Later, click that question on your laptop to jump the audio directly to that explanation.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -848,28 +1117,79 @@
     <div class="container">
       <div class="cta-banner">
         <h2 class="cta-title">Start recording offline today.</h2>
-        <p class="cta-subtitle">Available now on the GitHub release pipeline for Windows 11 (x64) and Android (v23+).</p>
+        <p class="cta-subtitle">Official installers compiled for Windows 11 (x64) and Android (API 23+). Completely free, private, and offline.</p>
         <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
           <a href="https://github.com/NavaneethanJ2010/design-championship-/releases/download/v1.0.0/workshop-notes-windows-x64.zip" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px;" download>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Windows App (.exe)
+            Download Windows App (.zip)
           </a>
           <a href="https://github.com/NavaneethanJ2010/design-championship-/releases/download/v1.0.0/app-release.apk" class="btn btn-secondary" style="padding: 12px 28px; font-size: 15px;" download>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-            Download Android APK
+            Download Android APK (.apk)
           </a>
+          <button onclick="openQrModal()" class="btn btn-accent" style="padding: 12px 24px; font-size: 15px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Show Install QR Code
+          </button>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Interactive QR Code Modal -->
+  <div id="qrModal" class="modal-overlay" onclick="closeQrModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeQrModal()">&times;</button>
+      <div style="font-family: var(--font-serif); font-size: 26px; margin-bottom: 6px;">Scan to Install on Android</div>
+      <p style="color: var(--text-muted); font-size: 13.5px;">Point your phone camera at this QR code to download and install WorkshopFlow directly.</p>
+      
+      <div class="qr-container">
+        <!-- High-contrast crisp SVG QR Code encoding the direct GitHub release APK URL -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29" shape-rendering="crispEdges" width="200" height="200">
+          <path fill="#ffffff" d="M0 0h29v29H0z"/>
+          <!-- Position Detection Patterns (Top-Left, Top-Right, Bottom-Left) -->
+          <path fill="#000000" d="M2 2h7v7H2zM10 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h7v7h-7zM3 3v5h5V3zM21 3v5h5V3zM4 4h3v3H4zM22 4h3v3h-3zM10 4h1v1h-1zM13 4h2v1h-2zM16 4h2v1h-2zM10 6h2v1h-2zM14 6h1v1h-1zM17 6h2v1h-2zM2 10h1v1H2zM4 10h2v1H4zM7 10h1v1H7zM9 10h2v1H9zM12 10h1v1h-1zM14 10h3v1h-3zM18 10h1v1h-1zM21 10h2v1h-2zM24 10h3v1h-3zM2 12h2v1H2zM6 12h1v1H6zM8 12h2v1H8zM12 12h2v1h-2zM16 12h1v1h-1zM19 12h2v1h-2zM23 12h1v1h-1zM26 12h1v1h-1zM3 14h2v1H3zM7 14h3v1H7zM11 14h1v1h-1zM13 14h3v1h-3zM17 14h2v1h-2zM20 14h2v1h-2zM24 14h3v1h-3zM2 16h1v1H2zM5 16h2v1H5zM8 16h1v1H8zM10 16h2v1h-2zM13 16h1v1h-1zM16 16h2v1h-2zM20 16h1v1h-1zM23 16h2v1h-2zM26 16h1v1h-1zM3 18h3v1H3zM7 18h1v1H7zM9 18h2v1H9zM12 18h2v1h-2zM15 18h1v1h-1zM18 18h2v1h-2zM21 18h1v1h-1zM24 18h3v1h-3zM2 20h7v7H2zM10 20h2v1h-2zM13 20h1v1h-1zM16 20h2v1h-2zM19 20h1v1h-1zM21 20h2v1h-2zM25 20h2v1h-2zM3 21v5h5v-5zM11 21h1v1h-1zM14 21h2v1h-2zM18 21h2v1h-2zM22 21h1v1h-1zM24 21h1v1h-1zM4 22h3v3H4zM10 23h2v1h-2zM13 23h2v1h-2zM17 23h1v1h-1zM20 23h2v1h-2zM23 23h2v1h-2zM26 23h1v1h-1zM10 25h1v1h-1zM12 25h2v1h-2zM15 25h3v1h-3zM19 25h1v1h-1zM22 25h2v1h-2zM25 25h2v1h-2zM11 27h2v1h-2zM14 27h1v1h-1zM17 27h2v1h-2zM20 27h1v1h-1zM23 27h2v1h-2z"/>
+        </svg>
+      </div>
+
+      <div style="font-size: 12px; color: var(--accent-green); font-family: var(--font-mono); margin-bottom: 16px;">
+        DIRECT APK DOWNLOAD (v1.0.0)
+      </div>
+
+      <a href="https://github.com/NavaneethanJ2010/design-championship-/releases/download/v1.0.0/app-release.apk" class="btn btn-secondary" style="width: 100%; justify-content: center; font-size: 13px;">
+        Direct Download to this Computer (.apk)
+      </a>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <div class="container footer-inner">
       <div>WorkshopFlow • Built with Flutter, Drift SQLite & LM Studio</div>
-      <div>Zero Cloud • 100% Local Privacy</div>
+      <div>Zero Cloud • 100% Local Privacy • Android & Windows 11</div>
     </div>
   </footer>
+
+  <script>
+    function openQrModal() {
+      document.getElementById('qrModal').classList.add('active');
+    }
+
+    function closeQrModal(e) {
+      document.getElementById('qrModal').classList.remove('active');
+    }
+
+    function switchTab(e, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeQrModal();
+    });
+  </script>
 
 </body>
 </html>

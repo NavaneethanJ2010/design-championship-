@@ -10,7 +10,7 @@ import 'services/audio_recording_service_impl.dart';
 import 'services/lm_studio_config.dart';
 import 'services/note_repository_impl.dart';
 import 'services/transcription_service_impl.dart';
-import 'ui/screens/workshop_note_detail_screen.dart';
+import 'ui/screens/notes_library_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +64,7 @@ class WorkshopNotesApp extends StatelessWidget {
     const primaryColor = Color(0xFF1E88E5);
 
     return MaterialApp(
-      title: 'Workshop Notes & Transcribe',
+      title: 'WorkshopFlow — Offline Notes & Transcribe',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -81,8 +81,7 @@ class WorkshopNotesApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      home: WorkshopNoteDetailScreen(
-        noteId: const Uuid().v4(),
+      home: NotesLibraryScreen(
         repository: repository,
         recordingService: recordingService,
         playbackService: playbackService,

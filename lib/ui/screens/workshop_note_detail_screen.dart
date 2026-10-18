@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../domain/models/ai_summary_models.dart';
 import '../../domain/repositories/i_note_repository.dart';
 import '../../domain/services/audio_and_ai_services.dart';
 import '../widgets/question_markers_widget.dart';
@@ -282,7 +283,7 @@ class _WorkshopNoteDetailScreenState extends State<WorkshopNoteDetailScreen> {
   // ---------------------------------------------------------------------------
   // AI SUMMARY ACTION
   // ---------------------------------------------------------------------------
-  Future<void> _handleGenerateAiSummary() async {
+  Future<void> _handleGenerateAiSummary([TranslationMode mode = TranslationMode.autoTamilTanglishToEnglish]) async {
     if (_segments.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cannot summarize without transcript segments.')),
@@ -296,6 +297,7 @@ class _WorkshopNoteDetailScreenState extends State<WorkshopNoteDetailScreen> {
         title: _titleController.text,
         topic: _topicController.text,
         transcriptLines: _segments.map((s) => s.textContent).toList(),
+        translationMode: mode,
       );
 
       setState(() {
@@ -417,6 +419,7 @@ class _WorkshopNoteDetailScreenState extends State<WorkshopNoteDetailScreen> {
                     actionItemsController: _actionItemsController,
                     aiSummary: _aiSummary,
                     isGeneratingSummary: _isGeneratingSummary,
+                    onRequestAiSummaryWithMode: _handleGenerateAiSummary,
                     onRequestAiSummary: _handleGenerateAiSummary,
                     onContentChanged: _onContentChanged,
                   ),
@@ -523,6 +526,7 @@ class _WorkshopNoteDetailScreenState extends State<WorkshopNoteDetailScreen> {
                         actionItemsController: _actionItemsController,
                         aiSummary: _aiSummary,
                         isGeneratingSummary: _isGeneratingSummary,
+                        onRequestAiSummaryWithMode: _handleGenerateAiSummary,
                         onRequestAiSummary: _handleGenerateAiSummary,
                         onContentChanged: _onContentChanged,
                       ),
